@@ -191,12 +191,36 @@ Retraining on a GPU never gives bit-identical weights, so a re-run gives slightl
 OOPS with OmniFall labels and official splits (`simplexsigil2/omnifall` on Hugging Face), GMDCSA24 from
 its GitHub release.
 
-## 8. Other programs (not needed for grading)
+## 8. Trying it on your own video, or live
 
-| Command | What it does |
-|---|---|
-| `python app/run_fall.py` | test videos interactively; models load once; results in `outputs/` |
-| `python app/live_fall.py` | live: webcam, a video played as it runs, a phone camera (`http://PHONE-IP:8080/video`) or CCTV (`rtsp://...`); `--serve` shows the live picture on a phone browser |
+**Any video file, fall or no fall, with localization** (the same engine as the evaluation command):
+```bash
+python infer.py --source "C:\path\to\my_clip.mp4" --config config.yaml --output-dir results_my_clip --device cpu --no-display --save-video
+```
+The terminal prints `ALARM <clip>: person #ID collapse at T s (onset ~S s)` for every fall, or `0 alarm(s)`
+if there is none. `results_my_clip/` then holds `alarms.jsonl` (who = `person_id`, where = `bbox_xyxy`,
+when = `decision_timestamp_s` and `onset_estimate_s`), `predictions.jsonl`, `run_summary.json` and
+`my_clip_annotated.mp4` (boxes and skeletons; the person who fell gets a red COLLAPSE box). Use
+`--device cuda:0` on a machine with an NVIDIA GPU. A folder works too (`--source my_videos`).
+
+**Easier interactive version** (models load once, several videos in a row, plain-words result):
+```bash
+python app/run_fall.py                          # asks for a video path, again and again
+python app/run_fall.py my_clip.mp4 other.mp4    # or several at once; results in outputs/<name>/
+```
+
+**Live, while the video is running** (any camera, any number of people, all settings from `config.yaml`):
+```bash
+python app/live_fall.py                                  # webcam 0 (q or Esc to quit)
+python app/live_fall.py my_clip.mp4                      # a video file played in real time, alarms as they happen
+python app/live_fall.py http://192.168.1.20:8080/video   # a phone as camera (free "IP Webcam" app, same Wi-Fi)
+python app/live_fall.py rtsp://user:pass@192.168.1.10/stream   # CCTV / IP camera
+```
+Options: `--save` keeps the annotated video and the fall list in `outputs/`; `--serve` also shows the live
+picture in a phone browser (the address is printed); `--no-show` runs without a window; `--fast` processes a
+file as fast as possible. On a CPU the live mode runs at about 10 frames/s with the optional OpenVINO package
+(`pip install openvino`), 2-3 frames/s without it; frames are sampled on the 15 fps grid by their timestamps,
+so slower machines just see fewer frames per second rather than wrong timing.
 
 ## 9. Repository layout and components
 

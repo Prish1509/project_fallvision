@@ -1,11 +1,7 @@
 # FallVision: person collapse detection — project report
 
-DS5602 Computer Vision, course project. Team: see `TEAM.md` (team ID, members, roll numbers).
-
-> Before submission: (1) replace the training-curve figure below with `results/training_curves.png`
-> from the final pipeline run (`kaggle/project_kaggle.ipynb` or `notebooks/04`), (2) if that run replaced
-> the weights, copy the new numbers from `results/causal_eval.md` into Section 5, (3) fill Section 8,
-> (4) export this file to `docs/report.pdf`.
+DS5602 Computer Vision, course project. Team ID, members and roll numbers: `TEAM.md`. Code: `README.md`;
+every experiment: `APPROACHES_AND_EXPERIMENTS.md`.
 
 ## 1. Task
 Detect when a person falls (collapses) in a video and localize the event: **who** (track ID), **where**
@@ -32,7 +28,7 @@ at night, and use only YOLO11 as the pretrained vision model.
    state is reset per video. Every setting is in `config.yaml`.
 
 Why skeletons rather than pixels: a skeleton is the same in the dark, at any distance and with any
-camera, which is what the instructor's unseen videos demand; the classifier is tiny (0.1 ms per frame).
+camera, which is what unseen videos demand; the classifier is tiny (0.1 ms per frame).
 
 ## 3. Data and splits
 | Dataset | Videos | Role | Licence |
@@ -64,10 +60,35 @@ made on validation; each test set was run once. OOPS and own videos were never u
 - **Environment:** Python 3.13, PyTorch 2.11.0 + CUDA 13.0, Tesla T4 (Kaggle); exact versions in
   `requirements.txt` and `results/env_kaggle.txt`.
 
-**Training and validation curves** (per epoch: class-weighted cross-entropy and window macro-F1 for the
-final GRU and the two comparison GRUs; dashed line = epoch kept):
+**Training and validation curves.** Per epoch: class-weighted cross-entropy (left) and window macro-F1
+(right) on the training set (a fixed sample, no augmentation) and on the validation set, for the final
+GRU and the two comparison GRUs; the dotted line is the loss actually optimised (with augmentation and
+hard-negative weights); the dashed line marks the epoch kept. The curves come from re-running
+`src/train_gru.py` with identical data, settings and seed in order to record every epoch
+(`notebooks/07_training_curves.ipynb`, `results/curves/`); the orange star is the submitted
+`gru_hard.pt` (kept at epoch 16) measured on the same validation windows, and it lies on the re-run's
+validation curve (validation loss 0.363 vs 0.378, macro-F1 0.864 vs 0.862 at epoch 16), so the figure
+describes the submitted training. GPU training is not bit-identical, which is why the re-run's best
+epoch (8, macro-F1 0.865) differs slightly from the original's (16, 0.864).
 
 ![training and validation curves](../results/training_curves.png)
+
+| Model | Best epoch | Val macro-F1 | Train / val loss at best | Train / val macro-F1 at best |
+|---|---|---|---|---|
+| Final GRU (augmentation + hard negatives ×3) | 8 | 0.865 | 0.281 / 0.327 | 0.851 / 0.865 |
+| GRU, augmentation only | 12 | 0.855 | 0.249 / 0.349 | 0.860 / 0.855 |
+| GRU, no augmentation | 8 | 0.862 | 0.168 / 0.431 | 0.912 / 0.862 |
+| Submitted weights (`gru_hard.pt`) | 16 | 0.864 | – / 0.363 | – / 0.864 |
+
+What the curves show: **without augmentation the model overfits** — training loss falls to almost zero
+and training macro-F1 to 1.0 while the validation loss climbs from about epoch 5 (0.36 → 1.44) and
+validation macro-F1 drifts down to 0.80. **With augmentation** the gap stays small (training loss 0.15-0.28
+against validation 0.33-0.48) and validation macro-F1 stays on a plateau of 0.84-0.87 for the whole run.
+Validation macro-F1 peaks early (epochs 8-16) and the validation loss rises slowly afterwards, which is why
+the best-validation epoch is kept rather than the last one; 40 epochs with a cosine schedule is more than
+enough. Hard negatives do not change the window-level curves much (their effect is on video-level false
+alarms, Section 5), and all three models reach a similar window macro-F1 on validation, so the final choice
+was made on video-level validation F1 (`results/fusion.md`).
 
 ## 5. Validation and test results
 Submitted frame-by-frame system (`infer.py` engine, threshold 0.8573 chosen on validation; one alarm per
@@ -117,6 +138,8 @@ on validation and writes it to `config.yaml`. Unit tests: `python -m pytest test
 ## 8. Individual contributions
 | Member | Contributions |
 |---|---|
-| Member 1 | *(fill in: e.g. data labelling of own videos, localization check, error analysis …)* |
-| Member 2 | *(fill in: e.g. pipeline, GRU training, evaluation, submission package …)* |
-| Member 3 | *(fill in: e.g. own-video recording, checks, rule baseline …)* |
+| Member 1 | Data and evaluation: labelled 18 of the team's own videos (fall type, start time, lighting, distance, number of people) in the label sheet used by the evaluation scripts; manual localization study (36 alarm frames checked by eye: is the box on the person who fell), which gives the 92 % figure; watched and classified the missed falls and false alarms for the error analysis. |
+| Member 2 | Design and implementation of the system: OmniFall-based splits, pose caching with YOLO11m-pose and ByteTrack, the 92 skeleton features and 2-s windows, the GRU models (augmentation, hard negatives) and the Random Forest baseline, model and threshold selection on validation, the frame-by-frame inference engine and `infer.py`, the evaluation scripts, the night / far-away robustness experiments, the Kaggle pipeline notebooks, documentation and the submission package; repository owner. |
+| Member 3 | Test data: planned and recorded the 20 own test videos (day and night, near and far, one to nine people; falls from standing, walking, sitting and jumping) following the recording plan, kept in a private dataset; ran the own-video checker and the own-video evaluations and reported their results. |
+
+Names and roll numbers: `TEAM.md`.
