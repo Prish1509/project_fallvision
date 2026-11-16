@@ -1,0 +1,7 @@
+{
+ "model": "gru_hard.pt",
+ "epoch": 16,
+ "val_loss": 0.36292,
+ "val_macro_f1": 0.86401,
+ "val_accuracy": 0.91204
+}
