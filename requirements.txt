@@ -1,0 +1,33 @@
+# FallVision - exact package versions (the environment the final evaluation ran in:
+# Kaggle, Linux, Python 3.13, NVIDIA Tesla T4, CUDA 13.0, driver 580; see results/env_kaggle.txt).
+# Install:  pip install -r requirements.txt
+# On Linux, the PyPI torch wheel includes CUDA. For a CPU-only machine or another CUDA version, install
+# torch/torchvision first from https://download.pytorch.org/whl/ (see README), then this file.
+
+# inference (infer.py) and the programs in app/
+torch==2.11.0
+torchvision==0.26.0
+ultralytics==8.4.212
+ultralytics-thop==2.2.5
+opencv-python==4.14.0.94
+numpy==2.1.3
+PyYAML==6.0.3
+lap==0.5.14
+scipy==1.16.3
+pillow==13.0.0
+matplotlib==3.10.0
+psutil==5.9.5
+polars==1.35.2
+requests==2.34.2
+
+# training and evaluation scripts in src/
+scikit-learn==1.6.1
+pandas==2.3.3
+tqdm==4.67.3
+
+# tests (python -m pytest tests)
+pytest==9.2.0
+
+# optional: about 4x faster pose model on a CPU in app/run_fall.py and app/live_fall.py
+# (not used by infer.py; skipped automatically when not installed)
+# openvino

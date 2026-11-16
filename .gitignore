@@ -1,0 +1,26 @@
+
+# ---- Fall_Vision: never commit big files ----
+data/
+cache/
+features/
+models/
+outputs/
+*.mp4
+*.avi
+*.mov
+*.pt
+*.pth
+*.pkl
+*.npy
+*.npz
+*.zip
+*_openvino_model/
+test_videos/
+work/
+results_example/
+results_random/
+.venv/
+.pytest_cache/
+examples/expected_output/
+__pycache__/
+*_falls.csv
