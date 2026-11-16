@@ -5,10 +5,11 @@ Build the course submission ZIP (TeamID_Project.zip) and check it.
     python make_submission.py --verify T07_Project.zip   # unzip in a temporary folder, run the example, compare
 
 Building:
-  1. checks that TEAM.md is filled in and both weights are in models/;
+  1. checks that docs/TEAM.md is filled in, report.pdf exists and both weights are in models/;
   2. runs infer.py on examples/videos/ (cpu) and stores the outputs in examples/expected_output/;
-  3. zips code (src/, app/, tests/), config.yaml, requirements.txt, the documentation, kaggle/, notebooks/,
-     results/, labels/, splits/, examples/ and models/{gru_hard.pt, yolo11m-pose.pt} into <TeamID>_Project/.
+  3. zips code (src/, app/, tests/), config.yaml, requirements.txt, README.md, report.pdf, docs/ (TEAM.md, DATA.md),
+     kaggle/, notebooks/, results/, labels/, splits/, examples/ and models/{gru_hard.pt, yolo11m-pose.pt}
+     into <TeamID>_Project/.
      Videos you tested with (test_videos/), outputs/, caches and the OpenVINO copy are left out.
 Verifying: runs the example from the unzipped copy (no internet needed) and checks that it raises the
 same alarms as examples/expected_output/alarms.jsonl (same videos, decision time within 0.2 s).
@@ -25,8 +26,8 @@ import tempfile
 import zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-INCLUDE = ["infer.py", "config.yaml", "requirements.txt", "README.md", "TEAM.md", "run_pipeline.py",
-           "APPROACHES_AND_EXPERIMENTS.md", "METHODOLOGY.md", "REPRODUCIBILITY.md", "KAGGLE_INSTRUCTIONS.md", ".gitignore",
+INCLUDE = ["infer.py", "config.yaml", "requirements.txt", "README.md", "report.pdf","run_pipeline.py",
+           ".gitignore",
            "app", "src", "tests", "kaggle", "docs", "notebooks", "results", "labels", "splits", "examples",
            "models/gru_hard.pt", "models/yolo11m-pose.pt"]
 SKIP_PARTS = {"__pycache__", ".ipynb_checkpoints", ".git", ".pytest_cache"}
@@ -44,17 +45,18 @@ def run_example(root, out):
 
 
 def build(a):
-    team = open(os.path.join(ROOT, "TEAM.md")).read() if os.path.exists(os.path.join(ROOT, "TEAM.md")) else ""
+    team_file = os.path.join(ROOT, "docs", "TEAM.md")
+    team = open(team_file).read() if os.path.exists(team_file) else ""
     if not team or "<" in team:
-        sys.exit("Fill in TEAM.md first (team ID, names, roll numbers, contributions; no <...> left).")
+        sys.exit("Fill in docs/TEAM.md first (team ID, names, roll numbers, contributions; no <...> left).")
     for w in ("models/gru_hard.pt", "models/yolo11m-pose.pt"):
         if not os.path.isfile(os.path.join(ROOT, w)):
             sys.exit(f"Missing {w}: both weights must be in the package (instruction 3).")
     for nb in ("01_*.ipynb", "02_*.ipynb", "03_*.ipynb", "04_*.ipynb", "05_*.ipynb", "06_*.ipynb"):
         if not glob.glob(os.path.join(ROOT, "notebooks", nb)):
             print(f"Warning: notebooks/{nb} is missing.")
-    if not glob.glob(os.path.join(ROOT, "docs", "*report*")) and not glob.glob(os.path.join(ROOT, "docs", "*Report*")):
-        print("Warning: no report found in docs/.")
+    if not os.path.isfile(os.path.join(ROOT, "report.pdf")):
+        print("Warning: report.pdf not found in the project folder.")
 
     exp = os.path.join(ROOT, "examples", "expected_output")
     if not a.skip_expected:
