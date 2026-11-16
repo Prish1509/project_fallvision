@@ -25,7 +25,7 @@ import tempfile
 import zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-INCLUDE = ["infer.py", "config.yaml", "requirements.txt", "README.md", "TEAM.md", "make_submission.py", "run_pipeline.py",
+INCLUDE = ["infer.py", "config.yaml", "requirements.txt", "README.md", "TEAM.md", "run_pipeline.py",
            "APPROACHES_AND_EXPERIMENTS.md", "METHODOLOGY.md", "REPRODUCIBILITY.md", "KAGGLE_INSTRUCTIONS.md", ".gitignore",
            "app", "src", "tests", "kaggle", "docs", "notebooks", "results", "labels", "splits", "examples",
            "models/gru_hard.pt", "models/yolo11m-pose.pt"]

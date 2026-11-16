@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Team ID** | 142502033_142301011_142613001 |
-| **Project** | Human Fall Detection |
+| **Project** | Person Collapse Detection in Video |
 | **Course** | DS5602 Computer Vision |
 
 | Member | Name | Roll number | Contributions |
