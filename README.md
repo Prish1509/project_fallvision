@@ -30,7 +30,7 @@ the current and past frames.
 
 **Windows (PowerShell)**
 ```powershell
-cd TeamID_Project
+cd 142502033_142301011_142613001_Project
 py -3.13 -m venv .venv
 .venv\Scripts\activate
 # CPU only (no NVIDIA GPU): CPU build of torch first, then the rest
@@ -61,7 +61,7 @@ YOLO11m-pose, pretrained on COCO keypoints). Nothing is downloaded at run time.
 ## 3. Inference (the evaluation command)
 
 ```bash
-python infer.py --source INPUT.mp4 --config config.yaml --output-dir results --device cuda:0 --no-display
+python infer.py --source INPUT.mp4 --config config.yaml --output-dir results --device cuda:0 --no-display --save-video
 ```
 
 | Argument | Meaning |
